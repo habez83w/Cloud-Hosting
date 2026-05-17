@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 YouTube Search API - Painel de Testes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-box button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-box button:active {
+            transform: translateY(0);
+        }
+
+        .params {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .params label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .params input {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .status {
+            display: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status.loading {
+            display: block;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status.error {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: #f5f5f5;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-thumb {
+            width: 100%;
+            height: 140px;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        .video-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: #333;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-channel {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .video-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .video-link {
+            display: block;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .video-link:hover {
+            background: #764ba2;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .api-url {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            color: #333;
+            border-left: 4px solid #667eea;
+        }
+
+        .api-url label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #667eea;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 YouTube Search API</h1>
+            <p>Painel de Testes - Busque Músicas em Tempo Real</p>
+        </div>
+
+        <div class="content">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Digite uma música, artista ou banda..." 
+                    onkeypress="if(event.key === 'Enter') search()"
+                >
+                <button onclick="search()">🔍 Buscar</button>
+            </div>
+
+            <div class="params">
+                <label>
+                    Resultados:
+                    <input type="number" id="limitInput" value="10" min="1" max="50">
+                </label>
+            </div>
+
+            <div class="status" id="status"></div>
+
+            <div class="results" id="results">
+                <div class="empty">
+                    <div class="empty-icon">🎧</div>
+                    <p>Digite o nome de um artista ou música para começar!</p>
+                </div>
+            </div>
+
+            <div class="api-url">
+                <label>URL da API (clique para copiar):</label>
+                <div id="apiUrl" onclick="copyToClipboard()">http://localhost:5000/api/search?q=coldplay&limit=10</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000'; // Mude pra URL da VPS quando deployar
+
+        function updateApiUrl() {
+            const query = document.getElementById('searchInput').value || 'coldplay';
+            const limit = document.getElementById('limitInput').value || '10';
+            const url = `${API_BASE}/api/search?q=${encodeURIComponent(query)}&limit=${limit}`;
+            document.getElementById('apiUrl').textContent = url;
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            setTimeout(() => {
+                if (type !== 'error') {
+                    status.style.display = 'none';
+                }
+            }, type === 'success' ? 3000 : 0);
+        }
+
+        async function search() {
+            const query = document.getElementById('searchInput').value.trim();
+            const limit = document.getElementById('limitInput').value || '10';
+
+            if (!query) {
+                showStatus('❌ Digite algo para buscar!', 'error');
+                return;
+            }
+
+            showStatus('⏳ Buscando...', 'loading');
+
+            try {
+                const response = await fetch(
+                    `${API_BASE}/api/search?q=${encodeURIComponent(query)}&limit=${limit}`
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+                showStatus(`✅ ${data.total} resultado(s) encontrado(s)!`, 'success');
+                updateApiUrl();
+            } catch (error) {
+                console.error('Erro:', error);
+                showStatus(
+                    `❌ Erro na API: ${error.message}. Verifique se o servidor está rodando em ${API_BASE}`,
+                    'error'
+                );
+            }
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+
+            if (!data.results || data.results.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">😕</div>
+                        <p>Nenhum resultado encontrado para "${data.query}"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsDiv.innerHTML = data.results.map(video => `
+                <div class="video-card">
+                    <div class="video-thumb">
+                        ${video.thumbnail 
+                            ? `<img src="${video.thumbnail}" alt="${video.title}">` 
+                            : '📹 Sem thumbnail'
+                        }
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-channel">🎤 ${video.channel}</div>
+                        <div class="video-stats">
+                            <span>⏱️ ${formatDuration(video.duration)}</span>
+                            <span>👁️ ${formatViews(video.views)}</span>
+                        </div>
+                        <a href="${video.url}" target="_blank" class="video-link">▶️ Abrir no YouTube</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatDuration(duration) {
+            if (!duration || typeof duration !== 'object') return 'N/A';
+            return duration.timestamp || `${duration.seconds}s`;
+        }
+
+        function formatViews(views) {
+            if (!views) return 'N/A';
+            if (typeof views === 'string') return views;
+            if (views >= 1e9) return (views / 1e9).toFixed(1) + 'B';
+            if (views >= 1e6) return (views / 1e6).toFixed(1) + 'M';
+            if (views >= 1e3) return (views / 1e3).toFixed(1) + 'K';
+            return views;
+        }
+
+        function copyToClipboard() {
+            const apiUrl = document.getElementById('apiUrl').textContent;
+            navigator.clipboard.writeText(apiUrl).then(() => {
+                alert('✅ URL copiada para a área de transferência!');
+            });
+        }
+
+        // Atualiza URL quando digita
+        document.getElementById('searchInput').addEventListener('input', updateApiUrl);
+        document.getElementById('limitInput').addEventListener('input', updateApiUrl);
+
+        // Busca exemplo ao carregar
+        window.addEventListener('load', () => {
+            updateApiUrl();
+        });
+    </script>
+</body>
+</html>
