@@ -37,7 +37,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno do servidor' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🎵 API YouTube Search rodando em http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🎵 API YouTube Search rodando em http://0.0.0.0:${PORT}`);
   console.log(`📍 Testa em: http://localhost:${PORT}/api/search?q=seu%20artista`);
 });
